@@ -70,7 +70,8 @@ for sigma = 90*coef
         free = -20*coef;
         cong = 3*coef;
         
-        
+        vthr = 15*coef;
+        deltav = 4*coef;
         
         
         for i = 1:length(vi)
@@ -94,56 +95,50 @@ for sigma = 90*coef
         
     end
     
+    
+    w = (0.5 * (1 + tanh( (vthr - min(Vfree, Vcong))/deltav)));    % eq(7)
+    
+    
+    vhat = w.*Vcong + (1-w).*Vfree;     % eq(6)
+    
+    diff = V.*~q - vhat.*~q;
+    ntest = sum(~q,'all');
+    rmse = sqrt(norm(diff, 'fro' )^2/ntest);
+    mae = sum(abs(diff),'all')/ntest;
+    
+    res = [res; sigma tau rmse mae];
+    
+    
+    figure
+    subplot(311)
+    imagesc(V)
+    title('V')
+    subplot(312)
+    imagesc(vhat)
+    colormap(cm)
+    title('vhat')
+    subplot(313)
+    imagesc(veh)
+    colormap(cm)
+    title('trajectory')
+    
+    
+    figure
+    subplot(311)
+    imagesc(Vfree)
+    title('Vfree')
+    subplot(312)
+    imagesc(Vcong)
+    title('Vcong')
+    subplot(313)
+    imagesc(w)
+    colormap(cm)
+    title('w')
+    
+    disp(['sigma ' num2str(sigma) ', tau=' num2str(tau) ', rmse_test=' num2str(rmse)]);
+    
+    
 end
-
-%%
-vthr = 15*coef;
-deltav = 4*coef;
-
-w = (0.5 * (1 + tanh( (vthr - min(Vfree, Vcong))/deltav)));    % eq(7)
-
-
-vhat = w.*Vcong + (1-w).*Vfree;     % eq(6)
-
-diff = V.*~q - vhat.*~q;
-ntest = sum(~q,'all');
-rmse = sqrt(norm(diff, 'fro' )^2/ntest);
-mae = sum(abs(diff),'all')/ntest;
-
-res = [res; sigma tau rmse mae];
-
-
-figure
-subplot(311)
-imagesc(V)
-title('V')
-subplot(312)
-imagesc(vhat)
-colormap(cm)
-title('vhat')
-subplot(313)
-imagesc(veh)
-colormap(cm)
-title('trajectory')
-
-
-figure
-subplot(411)
-imagesc(vhat)
-subplot(412)
-imagesc(Vfree)
-title('Vfree')
-subplot(413)
-imagesc(Vcong)
-title('Vcong')
-subplot(414)
-imagesc(w)
-colormap(cm)
-title('w')
-
-disp(['sigma ' num2str(sigma) ', tau=' num2str(tau) ', rmse_test=' num2str(rmse)]);
-
-
 
 
 
